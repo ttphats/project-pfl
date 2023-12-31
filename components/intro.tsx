@@ -5,14 +5,41 @@ import { useSectionInView } from "@/lib/hooks";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { BsArrowRight, BsFacebook, BsLinkedin } from "react-icons/bs";
 import { HiDownload } from "react-icons/hi";
 import { TypeAnimation } from "react-type-animation";
 
 export default function Intro() {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const animations = [
+    { text: "Designer", color: "#0766AD" },
+    {
+      text: "Digital Marketer",
+      color: "#F24A72",
+    },
+  ];
+
   const { setActiveSection, setTimeOfLastClick } = useActiveSectionContext();
   const { ref } = useSectionInView("Home", 0.5);
+  const [animationIndex, setAnimationIndex] = useState(0);
+  const [currentColor, setCurrentColor] = useState<string>(animations[0].color);
+  const currentAnimation = animations[animationIndex];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setAnimationIndex((prevIndex) => (prevIndex + 1) % animations.length);
+      setCurrentColor((prevColor) => {
+        const nextIndex =
+          (animations.findIndex((a) => a.text === currentAnimation.text) + 1) %
+          animations.length;
+        return animations[nextIndex].color;
+      });
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [currentAnimation.text, animations]);
+
   return (
     <section
       ref={ref}
@@ -54,18 +81,20 @@ export default function Intro() {
           </motion.span>
         </motion.div>
       </div>
-      <TypeAnimation
-        sequence={["I'm Designer", 3000, "I'm Digital Marketer", 3000]}
-        wrapper="h2"
-        speed={5}
-        style={{
-          fontSize: "3rem",
-          display: "inline-block",
-          margin: "5rem 0",
-          fontWeight: 700,
-        }}
-        repeat={Infinity}
-      />
+      <div className="flex gap-2 items-center justify-center">
+        <span className="text-[3rem] inline-block my-20 font-bold ">I'm</span>
+        <TypeAnimation
+          key={animationIndex}
+          sequence={[currentAnimation.text, 3000]}
+          wrapper="h2"
+          speed={5}
+          className={`text-[3rem] inline-block my-20 font-bold`}
+          repeat={Infinity}
+          style={{
+            color: currentColor,
+          }}
+        />
+      </div>
       <motion.h1
         className="relative z-0 mb-10 mt-4 px-4 text-2xl font-medium !leading-[1.5] sm:text-4xl"
         initial={{ opacity: 0, y: 100 }}
